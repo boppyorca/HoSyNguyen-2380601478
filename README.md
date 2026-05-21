@@ -76,7 +76,9 @@ chmod 755 uploads/products/
 
 ## Hướng dẫn sử dụng
 
-### Các trang chính
+### 1. Thông qua Web Interface
+
+#### Các trang chính
 
 - **Danh sách sản phẩm**: `/webbanhang/Product/` hoặc `/webbanhang/Product/index`
 - **Thêm sản phẩm**: `/webbanhang/Product/add`
@@ -88,6 +90,45 @@ chmod 755 uploads/products/
 - **Thêm danh mục**: `/webbanhang/Category/add`
 - **Sửa danh mục**: `/webbanhang/Category/edit/{id}`
 - **Xóa danh mục**: `/webbanhang/Category/delete/{id}`
+
+### 2. Thông qua CLI (Command Line Interface)
+
+#### Nhập Danh Mục từ Bàn Phím
+
+```bash
+php bin/import-category.php
+```
+
+Menu tương tác sẽ hiển thị:
+- ➕ Thêm danh mục mới
+- 📋 Xem danh sách danh mục
+- 🚪 Thoát
+
+#### Nhập Sản Phẩm từ Bàn Phím
+
+```bash
+php bin/import-product.php
+```
+
+Menu tương tác sẽ hiển thị:
+- ➕ Thêm sản phẩm mới
+- 📋 Xem danh sách sản phẩm
+- 🚪 Thoát
+
+#### Chạy Toàn Bộ CLI Tools (Dễ Hơn)
+
+**Linux/Mac**:
+```bash
+chmod +x bin/run.sh
+./bin/run.sh
+```
+
+**Windows**:
+```cmd
+bin\run.bat
+```
+
+Hoặc đơn giản chỉ cần double-click `run.bat` trên Windows!
 
 ### Tính năng chính
 
