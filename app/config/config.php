@@ -8,5 +8,5 @@ define('UPLOAD_DIR', 'uploads/products/');
 define('MAX_FILE_SIZE', 10 * 1024 * 1024);
 define('ALLOWED_EXTENSIONS', array('jpg', 'jpeg', 'png', 'gif'));
 
-define('SITE_URL', 'http://' . $_SERVER['HTTP_HOST'] . '/webbanhang/');
+define('SITE_URL', 'http://' . $_SERVER['HTTP_HOST'] . '/');
 define('ITEMS_PER_PAGE', 10);

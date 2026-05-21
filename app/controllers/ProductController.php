@@ -57,7 +57,7 @@ class ProductController
                 $result = $this->productModel->addProduct($name, $description, $price, $category_id, $image);
 
                 if ($result === true) {
-                    header('Location: /webbanhang/Product');
+                    header('Location: ' . SITE_URL . 'Product');
                 } else {
                     $errors = $result;
                     $categories = (new CategoryModel($this->db))->getCategories();
@@ -103,7 +103,7 @@ class ProductController
                 $result = $this->productModel->updateProduct($id, $name, $description, $price, $category_id, $image);
 
                 if ($result === true) {
-                    header('Location: /webbanhang/Product');
+                    header('Location: ' . SITE_URL . 'Product');
                 } else {
                     $errors = $result;
                     $product = $this->productModel->getProductById($id);
@@ -122,7 +122,7 @@ class ProductController
     public function delete($id)
     {
         if ($this->productModel->deleteProduct($id)) {
-            header('Location: /webbanhang/Product');
+            header('Location: ' . SITE_URL . 'Product');
         } else {
             echo "Đã xảy ra lỗi khi xóa sản phẩm.";
         }
@@ -130,7 +130,7 @@ class ProductController
 
     private function uploadImage($file)
     {
-        $target_dir = "uploads/products/";
+        $target_dir = "public/uploads/products/";
 
         if (!is_dir($target_dir)) {
             mkdir($target_dir, 0755, true);

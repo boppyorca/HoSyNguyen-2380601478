@@ -1,24 +1,46 @@
 <?php include 'app/views/shares/header.php'; ?>
 
-<h1>Chi tiết sản phẩm</h1>
+<div class="page-title">
+    <i class="bi bi-eye"></i> Chi tiết sản phẩm
+</div>
 
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title"><?php echo $product->name; ?></h5>
-
-        <?php if (!empty($product->image)): ?>
-            <div class="mb-3">
-                <img src="/webbanhang/uploads/products/<?php echo $product->image; ?>" class="img-fluid" alt="<?php echo $product->name; ?>" style="max-width: 300px;">
+<div class="row g-4">
+    <div class="col-md-5">
+        <div class="card">
+            <?php if (!empty($product->image)): ?>
+                <img src="<?php echo SITE_URL; ?>uploads/products/<?php echo htmlspecialchars($product->image); ?>"
+                     class="card-img-top" style="border-radius:14px; object-fit:cover; max-height:360px;" alt="<?php echo htmlspecialchars($product->name); ?>">
+            <?php else: ?>
+                <div style="height:280px; background:linear-gradient(135deg,#e8f0fe,#f0f2f5); border-radius:14px; display:flex; align-items:center; justify-content:center; color:#adb5bd; font-size:5rem;">
+                    <i class="bi bi-image"></i>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card h-100">
+            <div class="card-body p-4">
+                <h3 class="fw-bold text-dark mb-1"><?php echo htmlspecialchars($product->name); ?></h3>
+                <?php if (!empty($product->category_name)): ?>
+                    <span class="badge-cat mb-3 d-inline-block"><?php echo htmlspecialchars($product->category_name); ?></span>
+                <?php endif; ?>
+                <div class="price-tag fs-3 mb-3"><?php echo number_format($product->price, 0, '.', '.'); ?>đ</div>
+                <hr>
+                <p class="text-muted" style="line-height:1.7"><?php echo nl2br(htmlspecialchars($product->description)); ?></p>
+                <div class="d-flex gap-2 mt-4">
+                    <a href="<?php echo SITE_URL; ?>Product/edit/<?php echo $product->id; ?>" class="btn btn-warning px-4">
+                        <i class="bi bi-pencil me-1"></i> Sửa
+                    </a>
+                    <a href="<?php echo SITE_URL; ?>Product/delete/<?php echo $product->id; ?>" class="btn btn-danger px-4"
+                       onclick="return confirm('Xóa sản phẩm này?')">
+                        <i class="bi bi-trash me-1"></i> Xóa
+                    </a>
+                    <a href="<?php echo SITE_URL; ?>Product/" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-arrow-left me-1"></i> Quay lại
+                    </a>
+                </div>
             </div>
-        <?php endif; ?>
-
-        <p class="card-text"><strong>Mô tả:</strong> <?php echo $product->description; ?></p>
-        <p class="card-text"><strong>Giá:</strong> <?php echo $product->price; ?></p>
-        <p class="card-text"><strong>Danh mục:</strong> <?php echo $product->category_id; ?></p>
-
-        <a href="/webbanhang/Product/" class="btn btn-secondary">Quay lại danh sách</a>
-        <a href="/webbanhang/Product/edit/<?php echo $product->id; ?>" class="btn btn-warning">Sửa</a>
-        <a href="/webbanhang/Product/delete/<?php echo $product->id; ?>" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')">Xóa</a>
+        </div>
     </div>
 </div>
 

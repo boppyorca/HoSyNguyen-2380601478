@@ -1,60 +1,86 @@
 <?php include 'app/views/shares/header.php'; ?>
 
-<h1>Sửa sản phẩm</h1>
+<div class="page-title">
+    <i class="bi bi-pencil-square"></i> Sửa sản phẩm
+</div>
 
-<?php if (!empty($errors)): ?>
-    <div class="alert alert-danger">
-        <ul>
-            <?php foreach ($errors as $error): ?>
-                <li><?php echo htmlspecialchars($error); ?></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-<?php endif; ?>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body p-4">
 
-<form method="POST" action="/webbanhang/Product/update" enctype="multipart/form-data">
-    <input type="hidden" name="id" value="<?php echo $product->id; ?>">
+                <?php if (!empty($errors)): ?>
+                <div class="alert alert-danger border-0 rounded-3">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    <ul class="mb-0 ps-3">
+                        <?php foreach ($errors as $error): ?>
+                            <li><?php echo htmlspecialchars($error); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php endif; ?>
 
-    <div class="form-group">
-        <label for="name">Tên sản phẩm:</label>
-        <input type="text" id="name" name="name" class="form-control" value="<?php echo htmlspecialchars($product->name); ?>" required>
-    </div>
+                <form method="POST" action="<?php echo SITE_URL; ?>Product/update" enctype="multipart/form-data">
+                    <input type="hidden" name="id" value="<?php echo $product->id; ?>">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control"
+                                   value="<?php echo htmlspecialchars($product->name); ?>" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Giá <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" name="price" class="form-control" step="1000" min="0"
+                                       value="<?php echo htmlspecialchars($product->price); ?>" required>
+                                <span class="input-group-text">đ</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Danh mục <span class="text-danger">*</span></label>
+                            <select name="category_id" class="form-select" required>
+                                <option value="">-- Chọn danh mục --</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?php echo $category->id; ?>"
+                                        <?php echo ($category->id == $product->category_id) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($category->name); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Mô tả</label>
+                            <textarea name="description" class="form-control" rows="4"><?php echo htmlspecialchars($product->description); ?></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Hình ảnh</label>
+                            <div class="upload-zone" onclick="document.getElementById('imageInput').click()">
+                                <?php if (!empty($product->image)): ?>
+                                    <img id="imgPreview" class="img-preview mx-auto d-block"
+                                         src="<?php echo SITE_URL; ?>uploads/products/<?php echo htmlspecialchars($product->image); ?>"
+                                         style="display:block !important">
+                                    <p class="text-muted small mt-2 mb-0">Nhấn để đổi ảnh</p>
+                                <?php else: ?>
+                                    <i class="bi bi-cloud-upload fs-2 text-primary mb-2 d-block"></i>
+                                    <p class="mb-1">Nhấn để chọn ảnh mới</p>
+                                    <small class="text-muted">JPG, PNG, GIF — tối đa 10MB</small>
+                                    <img id="imgPreview" class="img-preview mx-auto d-block">
+                                <?php endif; ?>
+                                <input type="file" id="imageInput" name="image" accept="image/*" class="d-none">
+                            </div>
+                        </div>
+                        <div class="col-12 d-flex gap-2 pt-2">
+                            <button type="submit" class="btn btn-primary px-5">
+                                <i class="bi bi-check-lg me-1"></i> Cập nhật
+                            </button>
+                            <a href="<?php echo SITE_URL; ?>Product/" class="btn btn-outline-secondary px-4">Huỷ</a>
+                        </div>
+                    </div>
+                </form>
 
-    <div class="form-group">
-        <label for="description">Mô tả:</label>
-        <textarea id="description" name="description" class="form-control" required><?php echo htmlspecialchars($product->description); ?></textarea>
-    </div>
-
-    <div class="form-group">
-        <label for="price">Giá:</label>
-        <input type="number" id="price" name="price" class="form-control" step="0.01" value="<?php echo htmlspecialchars($product->price); ?>" required>
-    </div>
-
-    <div class="form-group">
-        <label for="category_id">Danh mục:</label>
-        <select id="category_id" name="category_id" class="form-control" required>
-            <option value="">-- Chọn danh mục --</option>
-            <?php foreach ($categories as $category): ?>
-                <option value="<?php echo $category->id; ?>" <?php echo ($category->id == $product->category_id) ? 'selected' : ''; ?>>
-                    <?php echo htmlspecialchars($category->name); ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="image">Hình ảnh:</label>
-        <?php if (!empty($product->image)): ?>
-            <div class="mb-2">
-                <img src="/webbanhang/uploads/products/<?php echo $product->image; ?>" width="100" height="100" alt="<?php echo htmlspecialchars($product->name); ?>">
             </div>
-        <?php endif; ?>
-        <input type="file" id="image" name="image" class="form-control" accept="image/*">
-        <small class="form-text text-muted">Định dạng: JPG, JPEG, PNG, GIF. Kích thước tối đa: 10MB. Để trống để giữ ảnh hiện tại</small>
+        </div>
     </div>
-
-    <button type="submit" class="btn btn-primary">Cập nhật sản phẩm</button>
-    <a href="/webbanhang/Product/" class="btn btn-secondary">Quay lại danh sách</a>
-</form>
+</div>
 
 <?php include 'app/views/shares/footer.php'; ?>

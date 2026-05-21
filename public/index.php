@@ -1,11 +1,12 @@
 <?php
-require_once('../app/controllers/ProductController.php');
-require_once('../app/controllers/CategoryController.php');
+chdir(dirname(__DIR__));
+require_once('app/controllers/ProductController.php');
+require_once('app/controllers/CategoryController.php');
 
 $request_url = $_SERVER['REQUEST_URI'];
-$base_url = '/webbanhang/';
+$base_url = '/';
 
-$path = str_replace($base_url, '', $request_url);
+$path = substr($request_url, strlen($base_url));
 $path = strtok($path, '?');
 $path_parts = array_filter(explode('/', $path));
 $path_parts = array_values($path_parts);

@@ -13,6 +13,11 @@ class CategoryController
         $this->categoryModel = new CategoryModel($this->db);
     }
 
+    public function index()
+    {
+        $this->list();
+    }
+
     public function list()
     {
         $categories = $this->categoryModel->getCategories();
@@ -33,7 +38,7 @@ class CategoryController
             $result = $this->categoryModel->addCategory($name, $description);
 
             if ($result === true) {
-                header('Location: /webbanhang/Category');
+                header('Location: ' . SITE_URL . 'Category');
             } else {
                 $errors = $result;
                 include 'app/views/category/add.php';
@@ -62,7 +67,7 @@ class CategoryController
             $result = $this->categoryModel->updateCategory($id, $name, $description);
 
             if ($result === true) {
-                header('Location: /webbanhang/Category');
+                header('Location: ' . SITE_URL . 'Category');
             } else {
                 $category = $this->categoryModel->getCategoryById($id);
                 $errors = $result;
@@ -74,7 +79,7 @@ class CategoryController
     public function delete($id)
     {
         if ($this->categoryModel->deleteCategory($id)) {
-            header('Location: /webbanhang/Category');
+            header('Location: ' . SITE_URL . 'Category');
         } else {
             echo "Đã xảy ra lỗi khi xóa danh mục.";
         }
