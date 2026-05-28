@@ -1,34 +1,33 @@
 <?php
-chdir(dirname(__DIR__));
-require_once('app/controllers/ProductController.php');
-require_once('app/controllers/CategoryController.php');
-
-$request_url = $_SERVER['REQUEST_URI'];
-$base_url = '/';
-
-$path = substr($request_url, strlen($base_url));
-$path = strtok($path, '?');
-$path_parts = array_filter(explode('/', $path));
-$path_parts = array_values($path_parts);
-
-$controller = isset($path_parts[0]) ? ucfirst(strtolower($path_parts[0])) : 'Product';
-$action = isset($path_parts[1]) ? strtolower($path_parts[1]) : 'index';
-$id = isset($path_parts[2]) ? $path_parts[2] : null;
-
-$controller_class = $controller . 'Controller';
-
-if (class_exists($controller_class)) {
-    $controller_obj = new $controller_class();
-
-    if (method_exists($controller_obj, $action)) {
-        if ($id) {
-            $controller_obj->$action($id);
-        } else {
-            $controller_obj->$action();
-        }
-    } else {
-        echo "Action $action not found";
-    }
-} else {
-    echo "Controller $controller_class not found";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
+require_once 'app/models/ProductModel.php';
+
+$url = $_GET['url'] ?? '';
+$url = rtrim($url, '/');
+$url = filter_var($url, FILTER_SANITIZE_URL);
+$url = explode('/', $url);
+
+// Kiểm tra phần tử đầu tiên của URL để xác định controller
+$controllerName = isset($url[0]) && $url[0] != '' ? ucfirst($url[0]) . 'Controller' : 'ProductController';
+
+// Kiểm tra phần tử thứ hai của URL để xác định action
+$action = isset($url[1]) && $url[1] != '' ? $url[1] : 'index';
+
+// Kiểm tra xem controller có tồn tại không
+if (!file_exists('app/controllers/' . $controllerName . '.php')) {
+    die('Controller not found');
+}
+
+require_once 'app/controllers/' . $controllerName . '.php';
+
+$controller = new $controllerName();
+
+if (!method_exists($controller, $action)) {
+    die('Action not found');
+}
+
+// Gọi action với các tham số còn lại (nếu có)
+call_user_func_array([$controller, $action], array_slice($url, 2));
+

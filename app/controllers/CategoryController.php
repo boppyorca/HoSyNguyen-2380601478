@@ -1,5 +1,6 @@
 <?php
 require_once('app/config/database.php');
+require_once('app/helpers/SessionHelper.php');
 require_once('app/models/CategoryModel.php');
 
 class CategoryController
@@ -9,6 +10,7 @@ class CategoryController
 
     public function __construct()
     {
+        SessionHelper::requireAdmin();
         $this->db = (new Database())->getConnection();
         $this->categoryModel = new CategoryModel($this->db);
     }

@@ -11,7 +11,7 @@
                 <img src="<?php echo SITE_URL; ?>uploads/products/<?php echo htmlspecialchars($product->image); ?>"
                      class="card-img-top" style="border-radius:14px; object-fit:cover; max-height:360px;" alt="<?php echo htmlspecialchars($product->name); ?>">
             <?php else: ?>
-                <div style="height:280px; background:linear-gradient(135deg,#e8f0fe,#f0f2f5); border-radius:14px; display:flex; align-items:center; justify-content:center; color:#adb5bd; font-size:5rem;">
+                <div style="height:280px; background:linear-gradient(135deg,#172a45,#1f3554); border-radius:14px; display:flex; align-items:center; justify-content:center; color:#8892b0; font-size:5rem;">
                     <i class="bi bi-image"></i>
                 </div>
             <?php endif; ?>
@@ -28,14 +28,19 @@
                 <hr>
                 <p class="text-muted" style="line-height:1.7"><?php echo nl2br(htmlspecialchars($product->description)); ?></p>
                 <div class="d-flex gap-2 mt-4">
-                    <a href="<?php echo SITE_URL; ?>Product/edit/<?php echo $product->id; ?>" class="btn btn-warning px-4">
-                        <i class="bi bi-pencil me-1"></i> Sửa
+                    <a href="/webbanhang/Product/addToCart/<?php echo $product->id; ?>" class="btn btn-primary px-4">
+                        <i class="bi bi-cart-plus me-1"></i> Thêm vào giỏ hàng
                     </a>
-                    <a href="<?php echo SITE_URL; ?>Product/delete/<?php echo $product->id; ?>" class="btn btn-danger px-4"
-                       onclick="return confirm('Xóa sản phẩm này?')">
-                        <i class="bi bi-trash me-1"></i> Xóa
-                    </a>
-                    <a href="<?php echo SITE_URL; ?>Product/" class="btn btn-outline-secondary px-4">
+                    <?php if (SessionHelper::isAdmin()): ?>
+                        <a href="<?php echo SITE_URL; ?>Product/edit/<?php echo $product->id; ?>" class="btn btn-warning px-4">
+                            <i class="bi bi-pencil me-1"></i> Sửa
+                        </a>
+                        <a href="<?php echo SITE_URL; ?>Product/delete/<?php echo $product->id; ?>" class="btn btn-danger px-4"
+                           onclick="return confirm('Xóa sản phẩm này?')">
+                            <i class="bi bi-trash me-1"></i> Xóa
+                        </a>
+                    <?php endif; ?>
+                    <a href="<?php echo SITE_URL; ?>Product/" class="btn btn-secondary px-4">
                         <i class="bi bi-arrow-left me-1"></i> Quay lại
                     </a>
                 </div>

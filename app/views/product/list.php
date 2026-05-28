@@ -4,9 +4,11 @@
     <div class="page-title mb-0">
         <i class="bi bi-box-seam"></i> Danh sách sản phẩm
     </div>
+    <?php if (SessionHelper::isAdmin()): ?>
     <a href="<?php echo SITE_URL; ?>Product/add" class="btn btn-success px-4">
         <i class="bi bi-plus-lg me-1"></i> Thêm sản phẩm
     </a>
+    <?php endif; ?>
 </div>
 
 <div class="row g-4">
@@ -34,13 +36,16 @@
                 </div>
                 <div class="d-flex gap-2">
                     <a href="<?php echo SITE_URL; ?>Product/show/<?php echo $product->id; ?>"
-                       class="btn btn-outline-primary btn-sm flex-fill" title="Xem"><i class="bi bi-eye"></i></a>
-                    <a href="<?php echo SITE_URL; ?>Product/edit/<?php echo $product->id; ?>"
-                       class="btn btn-warning btn-sm flex-fill" title="Sửa"><i class="bi bi-pencil"></i></a>
-                    <a href="<?php echo SITE_URL; ?>Product/delete/<?php echo $product->id; ?>"
-                       class="btn btn-danger btn-sm flex-fill" title="Xóa"
-                       onclick="return confirm('Xóa sản phẩm này?')"><i class="bi bi-trash"></i></a>
+                       class="btn btn-outline-primary btn-sm flex-fill" title="Xem Chi Tiết"><i class="bi bi-eye"></i> Chi tiết</a>
+                    <?php if (SessionHelper::isAdmin()): ?>
+                        <a href="<?php echo SITE_URL; ?>Product/edit/<?php echo $product->id; ?>"
+                           class="btn btn-warning btn-sm" title="Sửa"><i class="bi bi-pencil"></i></a>
+                        <a href="<?php echo SITE_URL; ?>Product/delete/<?php echo $product->id; ?>"
+                           class="btn btn-danger btn-sm" title="Xóa"
+                           onclick="return confirm('Xóa sản phẩm này?')"><i class="bi bi-trash"></i></a>
+                    <?php endif; ?>
                 </div>
+                <a href="/webbanhang/Product/addToCart/<?php echo $product->id; ?>" class="btn btn-primary btn-sm w-100 mt-2"><i class="bi bi-cart-plus me-1"></i> Thêm vào giỏ hàng</a>
             </div>
         </div>
     </div>

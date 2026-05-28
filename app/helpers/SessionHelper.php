@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 class SessionHelper
 {
@@ -38,6 +40,32 @@ class SessionHelper
             return $value;
         } else {
             self::set($key, $value);
+        }
+    }
+
+    public static function isLoggedIn()
+    {
+        return self::has('user_id');
+    }
+
+    public static function isAdmin()
+    {
+        return self::get('user_role') === 'admin';
+    }
+
+    public static function requireLogin()
+    {
+        if (!self::isLoggedIn()) {
+            header('Location: /webbanhang/Auth/login');
+            exit();
+        }
+    }
+
+    public static function requireAdmin()
+    {
+        if (!self::isAdmin()) {
+            http_response_code(403);
+            die('Access Denied: Admin role required.');
         }
     }
 }
