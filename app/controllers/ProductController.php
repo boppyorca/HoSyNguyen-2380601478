@@ -21,11 +21,16 @@ class ProductController
     {
         // Yêu cầu của giảng viên: Khi load lại trang chủ thì giỏ hàng phải trống.
         // Tuy nhiên, không clear giỏ hàng khi người dùng bấm "Tiếp tục mua sắm" từ giỏ hàng.
-        if (isset($_SESSION['keep_cart']) && $_SESSION['keep_cart'] === true) {
-            unset($_SESSION['keep_cart']);
+        if (SessionHelper::isLoggedIn()) {
+            // Tải giỏ hàng từ database cho user đã đăng nhập
+            $this->loadCartFromDb(SessionHelper::get('user_id'));
         } else {
-            if (isset($_SESSION['cart'])) {
-                unset($_SESSION['cart']);
+            if (isset($_SESSION['keep_cart']) && $_SESSION['keep_cart'] === true) {
+                unset($_SESSION['keep_cart']);
+            } else {
+                if (isset($_SESSION['cart'])) {
+                    unset($_SESSION['cart']);
+                }
             }
         }
         
@@ -209,6 +214,12 @@ class ProductController
                 'image' => $product->image
             ];
         }
+
+        // Đồng bộ DB nếu đã đăng nhập
+        if (SessionHelper::isLoggedIn()) {
+            $this->saveCartToDb(SessionHelper::get('user_id'));
+        }
+
         header('Location: /webbanhang/Product/cart');
     }
 
@@ -260,6 +271,8 @@ class ProductController
 
                 // Lưu chi tiết đơn hàng vào bảng order_details (Chỉ những sản phẩm được tích chọn)
                 $cart = $_SESSION['cart'];
+                $ordered_items = [];
+                $total_amount = 0;
                 foreach ($cart as $product_id => $item) {
                     if (!isset($item['selected']) || !$item['selected']) {
                         continue;
@@ -271,6 +284,13 @@ class ProductController
                     $stmt->bindParam(':quantity', $item['quantity']);
                     $stmt->bindParam(':price', $item['price']);
                     $stmt->execute();
+
+                    $ordered_items[] = [
+                        'name' => $item['name'],
+                        'quantity' => $item['quantity'],
+                        'price' => $item['price']
+                    ];
+                    $total_amount += $item['quantity'] * $item['price'];
                 }
 
                 // Chỉ xóa các sản phẩm được chọn mua khỏi giỏ hàng
@@ -282,6 +302,24 @@ class ProductController
 
                 // Commit giao dịch
                 $this->db->commit();
+
+                // Đồng bộ lại DB nếu đã đăng nhập
+                if (SessionHelper::isLoggedIn()) {
+                    $this->saveCartToDb($user_id);
+                }
+
+                // Gửi email đặt hàng thành công
+                try {
+                    require_once 'app/models/UserModel.php';
+                    require_once 'app/helpers/EmailHelper.php';
+                    $userModel = new UserModel($this->db);
+                    $user = $userModel->getUserById($user_id);
+                    if ($user && !empty($user->email)) {
+                        EmailHelper::sendOrderSuccessEmail($user->email, $order_id, $user->name ?? $user->username, $total_amount, $ordered_items);
+                    }
+                } catch (Exception $mailEx) {
+                    // Bỏ qua lỗi gửi mail để không làm gián đoạn trải nghiệm người dùng
+                }
 
                 // Chuyển hướng đến trang xác nhận đơn hàng kèm theo ID
                 header('Location: /webbanhang/Product/orderConfirmation?id=' . $order_id);
@@ -296,6 +334,7 @@ class ProductController
 
     public function orderConfirmation()
     {
+        SessionHelper::requireLogin();
         $id = $_GET['id'] ?? null;
         $order = null;
         $details = [];
@@ -304,6 +343,13 @@ class ProductController
             $orderModel = new OrderModel($this->db);
             $order = $orderModel->getOrderById($id);
             if ($order) {
+                // Kiểm tra quyền sở hữu đơn hàng
+                $current_user_id = SessionHelper::get('user_id');
+                $is_admin = SessionHelper::isAdmin();
+                if (!$is_admin && $order->user_id != $current_user_id) {
+                    http_response_code(403);
+                    die('Access Denied: Bạn không có quyền xem trang này.');
+                }
                 $details = $orderModel->getOrderDetails($id);
             }
         }
@@ -329,6 +375,11 @@ class ProductController
                     // Cập nhật trạng thái được tích chọn
                     $item['selected'] = in_array($id, $selected_ids);
                 }
+            }
+
+            // Đồng bộ DB nếu đã đăng nhập
+            if (SessionHelper::isLoggedIn()) {
+                $this->saveCartToDb(SessionHelper::get('user_id'));
             }
 
             if ($submit_action === 'checkout') {
@@ -363,7 +414,80 @@ class ProductController
         if (isset($_SESSION['cart'][$id])) {
             unset($_SESSION['cart'][$id]);
         }
+
+        // Đồng bộ DB nếu đã đăng nhập
+        if (SessionHelper::isLoggedIn()) {
+            $this->saveCartToDb(SessionHelper::get('user_id'));
+        }
+
         header('Location: /webbanhang/Product/cart');
         exit();
+    }
+
+    private function saveCartToDb($user_id)
+    {
+        if (!$user_id) return;
+        
+        $inTransaction = $this->db->inTransaction();
+        if (!$inTransaction) {
+            $this->db->beginTransaction();
+        }
+        try {
+            // Xóa sạch giỏ hàng cũ của user trong DB
+            $query = "DELETE FROM cart WHERE user_id = :user_id";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Nếu giỏ hàng trong session không trống, thêm lại
+            if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+                $query = "INSERT INTO cart (user_id, product_id, quantity, selected) VALUES (:user_id, :product_id, :quantity, :selected)";
+                $stmt = $this->db->prepare($query);
+                foreach ($_SESSION['cart'] as $product_id => $item) {
+                    $selected = isset($item['selected']) && $item['selected'] ? 1 : 0;
+                    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                    $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+                    $stmt->bindParam(':quantity', $item['quantity'], PDO::PARAM_INT);
+                    $stmt->bindParam(':selected', $selected, PDO::PARAM_INT);
+                    $stmt->execute();
+                }
+            }
+            if (!$inTransaction) {
+                $this->db->commit();
+            }
+        } catch (Exception $e) {
+            if (!$inTransaction) {
+                $this->db->rollBack();
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    private function loadCartFromDb($user_id)
+    {
+        if (!$user_id) return;
+
+        // Lấy danh sách sản phẩm trong giỏ hàng của user
+        $query = "SELECT c.product_id, c.quantity, c.selected, p.name, p.price, p.image 
+                  FROM cart c 
+                  JOIN product p ON c.product_id = p.id 
+                  WHERE c.user_id = :user_id";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $_SESSION['cart'] = [];
+        foreach ($rows as $row) {
+            $product_id = $row['product_id'];
+            $_SESSION['cart'][$product_id] = [
+                'name' => $row['name'],
+                'price' => $row['price'],
+                'quantity' => (int)$row['quantity'],
+                'image' => $row['image'],
+                'selected' => (bool)$row['selected']
+            ];
+        }
     }
 }

@@ -6,6 +6,79 @@
     </div>
 </div>
 
+<div class="row g-3 mb-4">
+    <!-- Doanh thu -->
+    <div class="col-md-6 col-lg">
+        <div class="card p-3 h-100" style="border-left: 4px solid var(--accent-color);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase mb-1">Doanh thu</div>
+                    <div class="fs-4 fw-bold" style="color: var(--accent-color);"><?php echo number_format($stats->revenue, 0, ',', '.'); ?>đ</div>
+                </div>
+                <div class="rounded p-2 fs-3" style="background: rgba(245, 166, 35, 0.1); color: var(--accent-color);">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Tổng đơn hàng -->
+    <div class="col-md-6 col-lg">
+        <div class="card p-3 h-100" style="border-left: 4px solid #3b82f6;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase mb-1">Tổng đơn</div>
+                    <div class="fs-4 fw-bold" style="color: #3b82f6;"><?php echo $stats->total; ?></div>
+                </div>
+                <div class="rounded p-2 fs-3" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Đã thanh toán -->
+    <div class="col-md-4 col-lg">
+        <div class="card p-3 h-100" style="border-left: 4px solid #10b981;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase mb-1">Đã thanh toán</div>
+                    <div class="fs-4 fw-bold" style="color: #10b981;"><?php echo $stats->paid; ?></div>
+                </div>
+                <div class="rounded p-2 fs-3" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                    <i class="bi bi-credit-card"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Đang giao -->
+    <div class="col-md-4 col-lg">
+        <div class="card p-3 h-100" style="border-left: 4px solid #06b6d4;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase mb-1">Đang giao</div>
+                    <div class="fs-4 fw-bold" style="color: #06b6d4;"><?php echo $stats->shipping; ?></div>
+                </div>
+                <div class="rounded p-2 fs-3" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">
+                    <i class="bi bi-truck"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Đã giao -->
+    <div class="col-md-4 col-lg">
+        <div class="card p-3 h-100" style="border-left: 4px solid #a855f7;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase mb-1">Đã giao</div>
+                    <div class="fs-4 fw-bold" style="color: #a855f7;"><?php echo $stats->completed; ?></div>
+                </div>
+                <div class="rounded p-2 fs-3" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="table-wrapper">
     <table class="table">
         <thead>

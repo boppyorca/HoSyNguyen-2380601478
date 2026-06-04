@@ -46,6 +46,28 @@ class AuthController
                 SessionHelper::set('user_role', $user->role);
                 SessionHelper::set('user_name', $user->name);
 
+                // Tải giỏ hàng từ database cho user này vào session
+                $query = "SELECT c.product_id, c.quantity, c.selected, p.name, p.price, p.image 
+                          FROM cart c 
+                          JOIN product p ON c.product_id = p.id 
+                          WHERE c.user_id = :user_id";
+                $stmt = $this->db->prepare($query);
+                $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);
+                $stmt->execute();
+                $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                $_SESSION['cart'] = [];
+                foreach ($rows as $row) {
+                    $product_id = $row['product_id'];
+                    $_SESSION['cart'][$product_id] = [
+                        'name' => $row['name'],
+                        'price' => $row['price'],
+                        'quantity' => (int)$row['quantity'],
+                        'image' => $row['image'],
+                        'selected' => (bool)$row['selected']
+                    ];
+                }
+
                 header('Location: /webbanhang/Product');
                 exit();
             } else {

@@ -64,5 +64,49 @@ class OrderModel
         $stmt->bindParam(':id', $id);
         return $stmt->execute();
     }
+
+    public function getOrderStats()
+    {
+        // 1. Tổng số đơn hàng
+        $queryTotal = "SELECT COUNT(*) as total FROM " . $this->table_name;
+        $stmt = $this->conn->prepare($queryTotal);
+        $stmt->execute();
+        $total = $stmt->fetch(PDO::FETCH_OBJ)->total;
+
+        // 2. Số đơn đã thanh toán
+        $queryPaid = "SELECT COUNT(*) as total FROM " . $this->table_name . " WHERE payment_status = 'paid'";
+        $stmt = $this->conn->prepare($queryPaid);
+        $stmt->execute();
+        $paid = $stmt->fetch(PDO::FETCH_OBJ)->total;
+
+        // 3. Số đơn đang giao
+        $queryShipping = "SELECT COUNT(*) as total FROM " . $this->table_name . " WHERE status = 'shipping'";
+        $stmt = $this->conn->prepare($queryShipping);
+        $stmt->execute();
+        $shipping = $stmt->fetch(PDO::FETCH_OBJ)->total;
+
+        // 4. Số đơn đã giao (completed)
+        $queryCompleted = "SELECT COUNT(*) as total FROM " . $this->table_name . " WHERE status = 'completed'";
+        $stmt = $this->conn->prepare($queryCompleted);
+        $stmt->execute();
+        $completed = $stmt->fetch(PDO::FETCH_OBJ)->total;
+
+        // 5. Tổng doanh thu (không tính các đơn đã hủy - status = 'cancelled')
+        $queryRevenue = "SELECT SUM(od.quantity * od.price) as total_revenue 
+                         FROM order_details od
+                         LEFT JOIN orders o ON od.order_id = o.id
+                         WHERE o.status != 'cancelled'";
+        $stmt = $this->conn->prepare($queryRevenue);
+        $stmt->execute();
+        $revenue = $stmt->fetch(PDO::FETCH_OBJ)->total_revenue ?? 0.00;
+
+        return (object)[
+            'total' => $total,
+            'paid' => $paid,
+            'shipping' => $shipping,
+            'completed' => $completed,
+            'revenue' => $revenue
+        ];
+    }
 }
 

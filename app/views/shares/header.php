@@ -170,6 +170,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="/webbanhang/Order"><i class="bi bi-receipt"></i> Đơn hàng</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/webbanhang/Order/returns"><i class="bi bi-arrow-counterclockwise"></i> Trả hàng</a>
+                        </li>
                     <?php endif; ?>
                     <li class="nav-item">
                         <a class="nav-link" href="/webbanhang/Product/cart">
@@ -189,7 +192,10 @@
                     </li>
                     <?php if (SessionHelper::isLoggedIn()): ?>
                         <li class="nav-item">
-                            <span class="nav-link text-white-50"><i class="bi bi-person-circle text-warning"></i> <?php echo htmlspecialchars(SessionHelper::get('user_name')); ?></span>
+                            <span class="nav-link text-white-50">
+                                <i class="bi bi-person-circle text-warning"></i> 
+                                <?php echo htmlspecialchars(SessionHelper::get('user_name') ?? SessionHelper::get('user_username') ?? $_SESSION['username'] ?? ''); ?>
+                            </span>
                         </li>
                         <?php if (!SessionHelper::isAdmin()): ?>
                             <li class="nav-item">

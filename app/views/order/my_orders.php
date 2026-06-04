@@ -101,6 +101,15 @@ if ($success):
                                 <a href="/webbanhang/Order/show/<?php echo $order->id; ?>" class="btn btn-sm btn-secondary me-1">
                                     <i class="bi bi-eye"></i> Xem chi tiết
                                 </a>
+                                <?php if ($order->status === 'completed'): 
+                                    $order_time = strtotime($order->created_at);
+                                    $seven_days_ago = time() - (7 * 24 * 60 * 60);
+                                    if ($order_time >= $seven_days_ago):
+                                ?>
+                                    <a href="/webbanhang/Order/returnRequest/<?php echo $order->id; ?>" class="btn btn-sm btn-outline-warning me-1">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Trả hàng
+                                    </a>
+                                <?php endif; endif; ?>
                                 <?php if ($order->status === 'pending'): ?>
                                     <form action="/webbanhang/Order/cancel/<?php echo $order->id; ?>" method="POST" class="d-inline-block" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');">
                                         <button type="submit" class="btn btn-sm btn-outline-danger">
