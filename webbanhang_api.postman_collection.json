@@ -1,0 +1,470 @@
+{
+	"info": {
+		"_postman_id": "408d6d62-1b15-4fa3-80b6-75fa59b4c7be",
+		"name": "API Quản lý Bán hàng (Nâng cao)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "API Sản phẩm",
+			"item": [
+				{
+					"name": "Lấy tất cả sản phẩm",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Mã trạng thái phản hồi phải là 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Dữ liệu trả về phải là mảng JSON hợp lệ\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"});",
+									"",
+									"pm.test(\"Thời gian phản hồi phải nhỏ hơn 300ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(300);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/product",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"product"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Tạo sản phẩm mới",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Mã trạng thái phản hồi phải là 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Xác nhận thông báo tạo thành công hợp lệ\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.eql(\"Product created successfully\");",
+									"});",
+									"",
+									"// Tự động tìm ID sản phẩm vừa tạo mới và lưu vào biến bộ sưu tập",
+									"const baseUrl = pm.collectionVariables.get(\"baseUrl\");",
+									"pm.sendRequest(`${baseUrl}/api/product`, function (err, response) {",
+									"    if (err) {",
+									"        console.log(\"Lỗi khi tìm ID sản phẩm mới:\", err);",
+									"    } else {",
+									"        const products = response.json();",
+									"        // Tìm sản phẩm có tên trùng khớp vừa tạo",
+									"        const targetProduct = products.find(p => p.name === \"Laptop ASUS Zenbook Pro\");",
+									"        if (targetProduct) {",
+									"            pm.collectionVariables.set(\"createdProductId\", targetProduct.id);",
+									"            console.log(\"Đã lưu ID sản phẩm mới tạo vào biến createdProductId: \" + targetProduct.id);",
+									"        } else {",
+									"            console.log(\"Không tìm thấy sản phẩm vừa tạo trong danh sách.\");",
+									"        }",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Laptop ASUS Zenbook Pro\",\n    \"description\": \"Core Ultra 9, OLED Screen, 32GB RAM\",\n    \"price\": 45000000,\n    \"category_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/product",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"product"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Lấy sản phẩm theo ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Mã trạng thái phản hồi phải là 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Xác minh cấu trúc sản phẩm và ID động\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var expectedId = pm.collectionVariables.get(\"createdProductId\");",
+									"    pm.expect(jsonData.id).to.eql(parseInt(expectedId));",
+									"    pm.expect(jsonData.name).to.eql(\"Laptop ASUS Zenbook Pro\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/product/{{createdProductId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"product",
+								"{{createdProductId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cập nhật sản phẩm",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Mã trạng thái phản hồi phải là 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Xác nhận thông báo cập nhật thành công\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.eql(\"Product updated successfully\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Laptop ASUS Zenbook Pro Updated\",\n    \"description\": \"Core Ultra 9, OLED Screen, 32GB RAM, Windows 11 Pro\",\n    \"price\": 43900000,\n    \"category_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/product/{{createdProductId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"product",
+								"{{createdProductId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Xác minh chi tiết sản phẩm sau cập nhật",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Mã trạng thái phản hồi phải là 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Xác minh các trường thông tin sau cập nhật khớp dữ liệu\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.name).to.eql(\"Laptop ASUS Zenbook Pro Updated\");",
+									"    pm.expect(parseFloat(jsonData.price)).to.eql(43900000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/product/{{createdProductId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"product",
+								"{{createdProductId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Xóa sản phẩm",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Mã trạng thái phản hồi phải là 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Xác nhận thông báo xóa thành công\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.eql(\"Product deleted successfully\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/product/{{createdProductId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"product",
+								"{{createdProductId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "API Đơn hàng",
+			"item": [
+				{
+					"name": "Lấy tất cả đơn hàng",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Mã trạng thái phản hồi phải là 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Tải danh sách đơn hàng thành công\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"    if (jsonData.length > 0) {",
+									"        // Lấy ID đơn hàng mới nhất và lưu vào biến",
+									"        pm.collectionVariables.set(\"createdOrderId\", jsonData[0].id);",
+									"        console.log(\"Đã lưu ID đơn hàng mới nhất vào biến: \" + jsonData[0].id);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/order",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Lấy chi tiết đơn hàng theo ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Mã trạng thái phản hồi phải là 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Xác minh cấu trúc phản hồi chi tiết đơn hàng\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"order\");",
+									"    pm.expect(jsonData).to.have.property(\"details\");",
+									"    pm.expect(jsonData.order.id).to.eql(parseInt(pm.collectionVariables.get(\"createdOrderId\")));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/order/{{createdOrderId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"order",
+								"{{createdOrderId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cập nhật trạng thái đơn hàng",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Mã trạng thái phản hồi phải là 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Xác nhận cập nhật trạng thái đơn hàng thành công\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.eql(\"Order updated successfully\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"processing\",\n    \"payment_status\": \"paid\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/order/{{createdOrderId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"order",
+								"{{createdOrderId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "API Danh mục",
+			"item": [
+				{
+					"name": "Lấy tất cả danh mục",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Mã trạng thái phản hồi phải là 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Dữ liệu danh mục trả về phải là một mảng và không rỗng\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"    pm.expect(jsonData.length).to.be.at.least(1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/category",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"category"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000/webbanhang",
+			"type": "string"
+		},
+		{
+			"key": "createdProductId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "createdOrderId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
